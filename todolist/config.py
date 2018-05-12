@@ -11,7 +11,7 @@ class Config:
         pass
 
 class DevelopmentConfig(Config):
-    SQLALCHEMY_DATABASE_URI = "mysql://root:qq345817576!@127.0.0.1/test"
+    SQLALCHEMY_DATABASE_URI = "mysql://root@127.0.0.1/myblog"
 
 config = {
     'development':DevelopmentConfig,

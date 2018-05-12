@@ -13,7 +13,7 @@ insert into todolist(id, user_id, title, status, create_time) values(1, 1, '习�
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(24) DEFAULT NULL,
-  `password` varchar(24) DEFAULT NULL,
+  `password_hash` varchar(120) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
@@ -25,6 +25,7 @@ insert into user values(1, 'admin', 'admin');
   `author_id` INT(30) NOT NULL ,
   `title` VARCHAR (30) NOT NULL ,
   `link` VARCHAR (60) NOT NULL ,
+  `vote` int(10) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 insert into posts values(1, '这是一篇测试博客，里面啥也没写', '2018-05-05 21:49:00',6,'TEST','www.baidu.com');

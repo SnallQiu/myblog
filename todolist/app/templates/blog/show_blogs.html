@@ -18,7 +18,7 @@
 
             <tr class="info">
                 <td>{{ loop.index }}</td>
-                <td><a href='{{ url_for('blog.show_blog_info',link=blog.get('link'.encode('utf-8')).decode('utf-8')) }}' class="btn btn-success" role ="button">{{ blog.get('title'.encode('utf-8')).decode('utf-8') }}</a></td>
+                <td><a href='{{ url_for('blog.show_blog_info',link=blog.get('link')) }}' class="btn btn-success" role ="button">{{ blog.get('title'.encode('utf-8')).decode('utf-8') }}</a></td>
                 <td>{{ blog['score'] }}</td>
                 <td>{{ blog['publish_time'] }}</td>
 

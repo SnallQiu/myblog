@@ -24,12 +24,12 @@ def show_blogs(page):
 
     else:
         if form.validate_on_submit():
-            article_link= str(current_user.id)+'/'+str(int(time.time()))
+            article_link= str(current_user.username)+'/'+str(int(time.time()))
             article = Post(body = form.body.data,author_id = current_user.id,title=form.title.data,link=article_link)
             db.session.add(article)
             db.session.commit()
             article_id ='article:'+str(article.id)
-            score = time.time()+Articles.get_vote_score(conn,article_id)
+            score = int(time.time()/10000000)+Articles.get_vote_score(conn,article_id)
             Articles.add_to_redis(conn,article_id,score,form,article_link,article)
             flash('You have update a blog!')
         else:
@@ -49,10 +49,16 @@ def show_blog_info(link):
 @login_required
 def votes(link,count):
     if request.method=='GET':
-        count +=1
         blog_info = Post.query.filter_by(link=link).first_or_404()
-        db.session.remove(blog_info)
-        blog_info.vote = count
-        db.session.add(blog_info)
-        db.session.commit()
-        return redirect(url_for('blog.show_blog_info',link=link))
+        voted_key = 'voted:'+str(blog_info.id)
+        voted_user = 'user:'+str(current_user.id)
+        score_key = 'article:'+str(blog_info.id)
+        if not conn.sismember(voted_key,voted_user):
+            count += 1
+            blog_info.vote = count
+            db.session.commit()
+            conn.sadd(voted_key,voted_user)           #将点过赞的用户添加到'voted:(article_id)'
+            conn.zincrby('score:',score_key,10)       #增加文章评分
+        else:
+            flash('you have voted!')
+        return redirect(url_for('blog.show_blog_info', link=link))

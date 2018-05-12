@@ -17,6 +17,10 @@ class Articles:
                 article_data['publish_time'] = article_data['publish_time'.encode('utf-8')].decode('utf-8').split('.')[:-1][0]
             except:
                 pass
+            try:
+                article_data['link'] = article_data['link'.encode('utf-8')].decode('utf-8')
+            except:
+                pass
             #print(article_data)
             articles.append(article_data)
         return articles
@@ -24,7 +28,7 @@ class Articles:
     @staticmethod
     def get_vote_score(conn,id):
         vote=conn.scard('voted:'+id.split('article:')[-1])
-        return 100*vote
+        return 10*vote
 
     @staticmethod
     def add_to_redis(conn,article_id,score,form,article_link,article):
