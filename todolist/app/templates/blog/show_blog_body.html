@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<h2>
+    {{ blog.title }}
+    <div class="post-col">
+    <div class="widget-vote">
+        <a href="{{ url_for('blog.votes',link=blog.link,count=blog.vote) }}" >点赞<input type="button" class="like" >
+            <span class="sr-only">给力！点个赞</span>
+        </a>
+        <span class="count">{{ blog.vote }}</span>
+    </div>
+    </div>
+</h2>
+<div>
+        {{ blog.body }}
+
+</div>
+
+
+
+
+
+{% endblock %}

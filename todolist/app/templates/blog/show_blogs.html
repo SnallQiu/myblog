@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+<table class="table table-hover">
+    <thead>
+        <th class="active">No</th>
+        <th class="active">Title</th>
+        <th class="active">Score</th>
+        <th class="active">Publish_time</th>
+
+    </thead>
+    <tbody>
+        {% for blog in blogs %}
+
+            <!-- tr -->
+
+            <tr class="info">
+                <td>{{ loop.index }}</td>
+                <td><a href='{{ url_for('blog.show_blog_info',link=blog.get('link'.encode('utf-8')).decode('utf-8')) }}' class="btn btn-success" role ="button">{{ blog.get('title'.encode('utf-8')).decode('utf-8') }}</a></td>
+                <td>{{ blog['score'] }}</td>
+                <td>{{ blog['publish_time'] }}</td>
+
+            </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal"> ADD </button>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog"> <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel" align="center">add new blog</h4>
+      </div>
+
+      <div class="modal-body">
+          <div class="row">
+              <div class="col-md-8 col-md-offset-2"> {{ wtf.quick_form(form, form_type="horizontal") }} </div>
+          </div>
+      </div> <!-- modal body -->
+
+    </div> </div>
+</div>
+
+
+{% endblock %}
