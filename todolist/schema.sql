@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `todolist` (
   `user_id` int(11) NOT NULL,
   `title` varchar(1024) NOT NULL,
   `status` int(2) NOT NULL COMMENT '是否完成',
-  `create_time` int(11) NOT NULL,
+  `create_time` TIMESTAMP(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 

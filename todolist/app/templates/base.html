@@ -6,7 +6,7 @@
 
 
     <nav class="navbar navbar-inverse container">
-        <div class="navbar-header"> <a class="navbar-brand" href="{{ url_for('main.show_todo_list') }}">TODO</a> </div>
+        <div class="navbar-header"> <a class="navbar-brand" href="{{ url_for('main.show_todo_list',) }}">TODO</a> </div>
         <div class="navbar-header"> <a class="navbar-brand" href="{{ url_for('blog.show_blogs',page=1) }}">BLOG</a> </div>
         <!-- logout links -->
         {% if current_user.is_authenticated %}

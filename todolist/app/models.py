@@ -13,13 +13,13 @@ class TodoList(db.Model):
     user_id = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(1024), nullable=False)
     status = db.Column(db.Integer, nullable=False)
-    create_time = db.Column(db.Integer, nullable=False)
+    create_time = db.Column(db.DateTime, default=time.strftime('%Y-%m-%d %H:%M:%S'))
 
     def __init__(self, user_id, title, status):
         self.user_id = user_id
         self.title = title
         self.status = status
-        self.create_time = time.time()
+        #self.create_time = datetime.fromtimestamp(time.time())
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -28,7 +28,7 @@ class Post(db.Model):
     link = db.Column(db.String(60),nullable=False)
     body = db.Column(db.Text)
     vote = db.Column(db.Integer,default=0)
-    timestamp = db.Column(db.DateTime,index=True,default=datetime.fromtimestamp(time.time()))
+    timestamp = db.Column(db.DateTime,index=True,default=datetime.fromtimestamp((time.time())))
     author_id = db.Column(db.Integer,db.ForeignKey('user.id'))
 
 class User(UserMixin, db.Model):

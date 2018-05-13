@@ -12,9 +12,9 @@ from datetime import datetime
 def show_todo_list():
     form = TodoListForm()
     if request.method == 'GET':
-        todolists = TodoList.query.all()
-        for todolist in todolists:
-            todolist.create_time = datetime.fromtimestamp(todolist.create_time)
+        todolists = TodoList.query.filter_by(user_id = current_user.id)
+        #for todolist in todolists:
+            #todolist.create_time = datetime.fromtimestamp(todolist.create_time)
         return render_template('index.html', todolists=todolists, form=form )
     else:
         if form.validate_on_submit():
