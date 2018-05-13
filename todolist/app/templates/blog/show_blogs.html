@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
+{% block title %}
+    page-content
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+{#    markdown#}
+    {{ pagedown.include_pagedown() }}
+{% endblock %}
+
 {% block page_content %}
 
 <table class="table table-hover">
@@ -42,7 +53,9 @@
 
       <div class="modal-body">
           <div class="row">
-              <div class="col-md-8 col-md-offset-2"> {{ wtf.quick_form(form, form_type="horizontal") }} </div>
+              <div class='col-lg-10' style="height: 800px; background-color: white; margin: 0 auto">
+                  {{ wtf.quick_form(form, form_type="horizontal") }}
+              </div>
           </div>
       </div> <!-- modal body -->
 

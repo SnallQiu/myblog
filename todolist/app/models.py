@@ -20,7 +20,8 @@ class TodoList(db.Model):
         self.title = title
         self.status = status
         #self.create_time = datetime.fromtimestamp(time.time())
-
+from markdown import markdown
+import bleach
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer,primary_key=True)
@@ -30,6 +31,18 @@ class Post(db.Model):
     vote = db.Column(db.Integer,default=0)
     timestamp = db.Column(db.DateTime,index=True,default=datetime.fromtimestamp((time.time())))
     author_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+    '''markdown
+    https://blog.csdn.net/hyman_c/article/details/54426242
+    '''
+    @staticmethod
+    def on_body_change(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'ul', 'strong', 'p', 'h1', 'h2', 'h3']
+        body = markdown(value, output_format='html')
+        body = bleach.clean(body, tags=allowed_tags, strip=True)
+        body = bleach.linkify(body)
+        target.html_body = body
+
+db.event.listen(Post.body,'set',Post.on_body_change)
 
 class User(UserMixin, db.Model):
     __tablename__ = "user"

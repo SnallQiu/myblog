@@ -968,6 +968,10 @@ hr {
   border: 0;
   border-top: 1px solid #eee;
 }
+.vote-count{
+  font-size: 8px;
+  font-style: revert;
+}
 .sr-only {
   position: absolute;
   width: 1px;

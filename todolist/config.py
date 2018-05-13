@@ -4,7 +4,10 @@
 class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    TEMPLATES_AUTO_RELOAD = True
+    SEND_FILE_MAX_AGE_DEFAULT = 0
     SECRET_KEY = 'This is my key'
+    BOOTSTRAP_SERVE_LOCAL = True
 
     @staticmethod
     def init_app(self):

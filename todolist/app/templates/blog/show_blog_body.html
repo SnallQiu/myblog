@@ -6,15 +6,19 @@
     {{ blog.title }}
     <div class="post-col">
     <div class="widget-vote">
-        <a href="{{ url_for('blog.votes',link=blog.link,count=blog.vote) }}" >点赞<input type="button" class="like" >
-            <span class="sr-only">给力！点个赞</span>
+        <input type="hidden">
+        <a href="{{ url_for('blog.votes',link=blog.link,count=blog.vote) }}" title="点个赞再走呗" style="font-size: 24px">star
         </a>
-        <span class="count">{{ blog.vote }}</span>
+        <span class="vote-count" style="font-size: 16px;color: #285e8e">
+            {{ blog.vote }}
+        </span>
     </div>
     </div>
 </h2>
 <div>
+    <div class='col-xs-6'>
         {{ blog.body }}
+    </div>
 
 </div>
 
