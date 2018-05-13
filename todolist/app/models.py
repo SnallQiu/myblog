@@ -28,6 +28,7 @@ class Post(db.Model):
     title = db.Column(db.String(24), nullable=False)
     link = db.Column(db.String(60),nullable=False)
     body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
     vote = db.Column(db.Integer,default=0)
     timestamp = db.Column(db.DateTime,index=True,default=datetime.fromtimestamp((time.time())))
     author_id = db.Column(db.Integer,db.ForeignKey('user.id'))
@@ -36,11 +37,15 @@ class Post(db.Model):
     '''
     @staticmethod
     def on_body_change(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'ul', 'strong', 'p', 'h1', 'h2', 'h3']
+        allowed_tags = [
+            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+            'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+            'h1', 'h2', 'h3', 'p'
+        ]
         body = markdown(value, output_format='html')
         body = bleach.clean(body, tags=allowed_tags, strip=True)
         body = bleach.linkify(body)
-        target.html_body = body
+        target.body_html = body
 
 db.event.listen(Post.body,'set',Post.on_body_change)
 

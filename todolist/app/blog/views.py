@@ -10,6 +10,7 @@ import redis
 from ..models import User,Post
 from .. import db
 import time
+from markdown import markdown
 conn= redis.Redis('127.0.0.1',6379)
 
 
@@ -42,6 +43,7 @@ def show_blogs(page):
 def show_blog_info(link):
 
     blog_info = Post.query.filter_by(link=link).first_or_404()
+    #return render_template('blog/show_blog_body.html',blog =blog_info,blog_body=Post.on_body_change(blog_info.body))
     return render_template('blog/show_blog_body.html',blog=blog_info)
 
 

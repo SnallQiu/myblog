@@ -21,6 +21,7 @@ insert into user values(1, 'admin', 'admin');
  CREATE TABLE `posts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `body` TEXT(65355) DEFAULT NULL,
+  `body_html` TEXT(65355) DEFAULT NULL,
   `timestamp` TIMESTAMP(4) NOT NULL,
   `author_id` INT(30) NOT NULL ,
   `title` VARCHAR (30) NOT NULL ,

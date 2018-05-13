@@ -20,7 +20,10 @@ class Blog_items(Form):
     title = StringField('Set Your blog name!')
     #body = TextAreaField("what's on your mind?", validators=[DataRequired()])
     '''markdown'''
-    body =PageDownField("what's on your mind?",validators=[DataRequired(), Length(1, 9999, message='文章字数超出限制')],widget=MyTextArea(cols=1))
+    body =PageDownField("what's on your mind?",validators=[DataRequired(), Length(1, 9999, message='文章字数超出限制')])#,widget=MyTextArea(cols=1))
     #publish_time = StringField('publish_time',validators = [DataRequired()])
     #score = IntegerField('score',validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+class Show_blog(Form):
+    body =PageDownField("",validators=[DataRequired(), Length(1, 9999, message='文章字数超出限制')])#,widget=MyTextArea(cols=1))
