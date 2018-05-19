@@ -27,3 +27,7 @@ class Blog_items(Form):
 
 class Show_blog(Form):
     body =PageDownField("",validators=[DataRequired(), Length(1, 9999, message='文章字数超出限制')])#,widget=MyTextArea(cols=1))
+
+class Ensure_Delete(Form):
+    status = RadioField('ENSURE DELETE!', validators=[DataRequired()],  choices=[('1', 'YES'),("0",'NO')])
+    submit = SubmitField('COMMIT')

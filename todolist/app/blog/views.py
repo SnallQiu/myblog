@@ -3,7 +3,7 @@
 from .articles import Articles
 #from app import db
 from . import blog
-from .forms import Blog_items
+from .forms import Blog_items,Ensure_Delete
 from flask import request,flash,url_for,redirect,render_template
 from flask_login import current_user,login_required
 import redis
@@ -41,10 +41,17 @@ def show_blogs(page):
 @blog.route('/info/<path:link>',methods=['GET','POST'])
 @login_required
 def show_blog_info(link):
-
+    form = Ensure_Delete()
     blog_info = Post.query.filter_by(link=link).first_or_404()
-    #return render_template('blog/show_blog_body.html',blog =blog_info,blog_body=Post.on_body_change(blog_info.body))
-    return render_template('blog/show_blog_body.html',blog=blog_info)
+    can_edit=False
+    if blog_info.author_id == current_user.id:
+        can_edit = True
+    if form.validate_on_submit():
+        if form.status.data=='1':
+            return redirect(url_for('blog.delete_blog',id=blog_info.id))
+
+
+    return render_template('blog/show_blog_body.html',blog=blog_info,can_edit=can_edit,form = form)
 
 
 @blog.route('/info/<path:link>/count/<int:count>',methods=['GET','POST'])
@@ -64,3 +71,14 @@ def votes(link,count):
         else:
             flash('you have voted!')
         return redirect(url_for('blog.show_blog_info', link=link))
+
+
+@blog.route('/delete/<int:id>')
+@login_required
+def delete_blog(id):
+    blog_info = Post.query.filter_by(id=id).first_or_404()
+    db.session.delete(blog_info)
+    db.session.commit()
+    Articles.delete_blog(conn,id)
+    flash('You have delete a blog')
+    return redirect(url_for('blog.show_blogs',page=1))

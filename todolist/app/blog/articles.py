@@ -39,3 +39,8 @@ class Articles:
             'publish_time': article.timestamp
         }
         conn.hmset(article_id, article_info)
+    @staticmethod
+    def delete_blog(conn,id):
+        conn.delete('article:' + str(id))
+        conn.delete('voted:' + str(id))
+        conn.zrem('score:','article:'+str(id))
