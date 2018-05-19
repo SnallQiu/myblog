@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block scripts %}
+    {{ super() }}
+{#    markdown#}
+    {{ pagedown.include_pagedown() }}
+{% endblock %}
+{% block page_content %}
+<h2>
+{% if can_edit %}
+    <div>
+        {{ blog.title }}
+<!-- Button trigger modal -->
+        <div class="btn-group btn-group-taggle">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModaledit" title="写太烂，改改吧"> ReEdit </button>
+
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModalDel" title="写太烂，删了吧" > Delete </button>
+
+<!-- Modal -->
+            <div class="modal fade" id="myModaledit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel" align="center">Edit this blog</h4>
+                        </div>
+
+                    <div class="modal-body">
+                <div class="row">
+                        <div class='input-lg' style="height: 800px; background-color: white; margin: 0 auto">
+                            {{ wtf.quick_form(form_edit, form_type="horizontal") }}
+                        </div>
+                </div>
+                    </div> <!-- modal body -->
+
+                     </div>
+                </div>
+            </div>
+            <div class="modal fade" id="myModalDel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog"> <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLabel" align="center">Delete thie blog</h4>
+                    </div>
+
+                <div class="modal-body">
+            <div class="row">
+              <div class='input-lg' style="height: 200px; background-color: white; margin: 0 auto">
+                  {{ wtf.quick_form(form_del, form_type="horizontal") }}
+              </div>
+            </div>
+            </div> <!-- modal body -->
+
+            </div>
+                </div>
+        </div>
+        </div>
+    </div>
+
+{% endif %}
+
+    <div class="post-col">
+    <div class="widget-vote">
+        <input type="hidden">
+        <a href="{{ url_for('blog.votes',link=blog.link,count=blog.vote) }}" title="点个赞再走呗" style="font-size: 24px;color: #ce8483">star
+        </a>
+        <span class="vote-count" style="font-size: 16px;color: dodgerblue;">
+            {{ blog.vote }}
+        </span>
+    </div>
+    </div>
+</h2>
+
+<div>
+    <div class='col-xs-6'>
+        {% if blog.body_html %}
+          {{ blog.body_html|safe }}
+        {% else %}
+          {{ blog.body }}
+        {% endif %}
+    </div>
+
+</div>
+
+
+{% endblock %}
