@@ -11,6 +11,7 @@
         <!-- logout links -->
         {% if current_user.is_authenticated %}
             <ul class="nav navbar-nav pull-right">
+                <li><a class="btn" href="{{ url_for('blog.show_my_blogs',page=1) }}">myblog</a></li>
                 <li><a class="btn" href="{{ url_for('auth.logout') }}">logout</a></li>
             </ul>
         {% endif %}

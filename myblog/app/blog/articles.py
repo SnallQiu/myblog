@@ -3,12 +3,14 @@
 ARTICLE_PER_PAGE  = 20
 class Articles:
     @staticmethod
-    def get_articles(conn,page,orders='score:'):
+    def get_articles(conn,page,orders='score:',username=''):
+        print('+++',username)
         start = (page-1)*ARTICLE_PER_PAGE
         end = start + ARTICLE_PER_PAGE -1
 
         ids = conn.zrevrange(orders,start,end)
         articles = []
+        my_articles=[]
         for id in ids:
             article_data = conn.hgetall(id)
             article_data['id'] = id
@@ -22,13 +24,15 @@ class Articles:
             except:
                 pass
             #print(article_data)
+            if article_data['link'].split('/')[0]==username:
+                my_articles.append(article_data)
             articles.append(article_data)
-        return articles
+        return my_articles if username else articles
 
     @staticmethod
     def get_vote_score(conn,id):
         vote=conn.scard('voted:'+id.split('article:')[-1])
-        return 10*vote
+        return 432*vote
 
     @staticmethod
     def add_to_redis(conn,article_id,score,form,article_link,article):

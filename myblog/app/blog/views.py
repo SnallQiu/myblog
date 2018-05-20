@@ -103,3 +103,37 @@ def delete_blog(id):
     Articles.delete_blog(conn,id)
     flash('You have delete a blog')
     return redirect(url_for('blog.show_blogs',page=1))
+
+
+@blog.route('/show_myblog/<int:page>',methods=['GET','POST'])
+@login_required
+def show_my_blogs(page):
+    form = Blog_items()
+    if request.method == 'GET':
+
+        all_blogs = Articles.get_articles(conn,page,username=current_user.username)
+        #print(all_blogs)
+        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs)
+
+    else:
+        if form.validate_on_submit():
+            article_link= str(current_user.username)+'/'+str(int(time.time()))
+            article = Post(body = form.body.data,author_id = current_user.id,title=form.title.data,link=article_link)
+            db.session.add(article)
+            db.session.commit()
+            article_id ='article:'+str(article.id)
+            score = int(time.time())+Articles.get_vote_score(conn,article_id)
+            Articles.add_to_redis(conn,article_id,score,form,article_link,article)
+            flash('You have update a blog!')
+        else:
+            flash(form.errors)
+        return redirect(url_for('blog.show_blogs',page=1))
+
+
+
+'''
+以后在解决图片分栏显示问题---------
+ <div class="col-lg-6">
+    <img src="https://farm5.staticflickr.com/4290/35294660055_42c02b2316_k_d.jpg" width="568" height="466" style="position: relative;left: 600px">
+    </div>
+'''
