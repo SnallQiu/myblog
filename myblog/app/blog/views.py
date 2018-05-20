@@ -41,30 +41,38 @@ def show_blogs(page):
 @blog.route('/info/<path:link>',methods=['GET','POST'])
 @login_required
 def show_blog_info(link):
-    form_del = Ensure_Delete()
-    form_edit = Blog_items()
-    blog_info = Post.query.filter_by(link=link).first_or_404()
-    form_edit.body.data = blog_info.body
-    form_edit.title.data = blog_info.title
-    can_edit=False
-    if blog_info.author_id == current_user.id:
-        can_edit = True
-    if request.method == 'POST':
-        if form_del.validate_on_submit():
-            if form_del.status.data == '1':
-                return redirect(url_for('blog.delete_blog', id=blog_info.id))
+    if request.method == "GET":
+        form_del = Ensure_Delete()
+        form_edit = Blog_items()
+        blog_info = Post.query.filter_by(link=link).first_or_404()
+        form_edit.body.data = blog_info.body
+        form_edit.title.data = blog_info.title
+        can_edit = False
+        if blog_info.author_id == current_user.id:
+            can_edit = True
+        return render_template('blog/show_blog_body.html', blog=blog_info, can_edit=can_edit, form_del=form_del,
+                               form_edit=form_edit)
+
+    else:
+        form_edit = Blog_items()
+        form_del = Ensure_Delete()
+        blog_info = Post.query.filter_by(link=link).first_or_404()
+
+        if form_del.status.data == '1':
+            return redirect(url_for('blog.delete_blog', id=blog_info.id))
         if form_edit.validate_on_submit():
             '''这里没有修改 from_edit没有修改'''
             blog_info.title = form_edit.title.data
             blog_info.body = form_edit.body.data
             db.session.commit()
+            '''modify redis '''
+            conn.hset('article:'+str(blog_info.id),'title',blog_info.title)
             flash('Your have modifyed a blog!')
             return redirect(url_for('blog.show_blog_info', link=link))
         
 
 
 
-    return render_template('blog/show_blog_body.html',blog=blog_info,can_edit=can_edit,form_del = form_del,form_edit = form_edit)
 
 
 @blog.route('/info/<path:link>/count/<int:count>',methods=['GET','POST'])
