@@ -3,18 +3,20 @@
 ARTICLE_PER_PAGE  = 20
 class Articles:
     @staticmethod
-    def get_articles(conn,page,orders='score:',username=''):
+    def get_articles(pipeline,conn,page,orders='score:',username=''):
         print('+++',username)
         start = (page-1)*ARTICLE_PER_PAGE
         end = start + ARTICLE_PER_PAGE -1
-
-        ids = conn.zrevrange(orders,start,end)
         articles = []
-        my_articles=[]
+        my_articles = []
+        '''use pipeline to reduce connection time'''
+        ids = conn.zrevrange(orders,start,end)
         for id in ids:
-            article_data = conn.hgetall(id)
-            article_data['id'] = id
-            article_data['score'] = conn.zscore(orders,id)
+            pipeline.hgetall(id)
+        articles_datas = pipeline.execute()
+        for i,article_data in enumerate(articles_datas):
+            article_data['id'] = ids[i]
+            article_data['score'] = conn.zscore(orders,ids[i])
             try:
                 article_data['publish_time'] = article_data['publish_time'.encode('utf-8')].decode('utf-8').split('.')[:-1][0]
             except:

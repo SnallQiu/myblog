@@ -12,14 +12,14 @@ from .. import db
 import time
 from markdown import markdown
 conn= redis.Redis('127.0.0.1',6379)
-
+pipeline = conn.pipeline()
 
 @login_required
 @blog.route('/<int:page>',methods = ['GET','POST'])
 def show_blogs(page):
     form = Blog_items()
     if request.method == 'GET':
-        all_blogs = Articles.get_articles(conn,page)
+        all_blogs = Articles.get_articles(pipeline,conn,page)
         #print(all_blogs)
         return render_template('blog/show_blogs.html',form=form,blogs=all_blogs)
 
