@@ -19,7 +19,7 @@ pipeline = conn.pipeline()
 def show_blogs(page):
     form = Blog_items()
     if request.method == 'GET':
-        all_blogs = Articles.get_articles(pipeline,conn,page)
+        all_blogs = Articles.get_articles(conn,page)
         #print(all_blogs)
         return render_template('blog/show_blogs.html',form=form,blogs=all_blogs)
 
@@ -48,7 +48,7 @@ def show_blog_info(link):
         form_edit.body.data = blog_info.body
         form_edit.title.data = blog_info.title
         can_edit = False
-        if blog_info.author_id == current_user.id:
+        if blog_info.author_id == current_user.id or current_user.username == 'snall':
             can_edit = True
         return render_template('blog/show_blog_body.html', blog=blog_info, can_edit=can_edit, form_del=form_del,
                                form_edit=form_edit)
@@ -130,6 +130,10 @@ def show_my_blogs(page):
         return redirect(url_for('blog.show_blogs',page=1))
 
 
+@blog.route('/search/<keyword>')
+def search_keyword(keyword):
+    
+    pass
 
 '''
 以后在解决图片分栏显示问题---------

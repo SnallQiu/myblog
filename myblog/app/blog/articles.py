@@ -3,7 +3,8 @@
 ARTICLE_PER_PAGE  = 20
 class Articles:
     @staticmethod
-    def get_articles(pipeline,conn,page,orders='score:',username=''):
+    def get_articles(conn,page,orders='score:',username=''):
+        pipeline = conn.pipeline()
         print('+++',username)
         start = (page-1)*ARTICLE_PER_PAGE
         end = start + ARTICLE_PER_PAGE -1
