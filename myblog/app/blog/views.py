@@ -3,7 +3,7 @@
 from .articles import Articles
 #from app import db
 from . import blog
-from .forms import Blog_items,Ensure_Delete
+from .forms import Blog_items,Ensure_Delete,Search_keywords
 from flask import request,flash,url_for,redirect,render_template
 from flask_login import current_user,login_required
 import redis
@@ -17,24 +17,29 @@ pipeline = conn.pipeline()
 @login_required
 @blog.route('/<int:page>',methods = ['GET','POST'])
 def show_blogs(page):
-    form = Blog_items()
+    blog_form = Blog_items()
+    search_form = Search_keywords()
+    all_blogs = Articles.get_articles(conn, page)
     if request.method == 'GET':
-        all_blogs = Articles.get_articles(conn,page)
         #print(all_blogs)
-        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs)
+        return render_template('blog/show_blogs.html',form=blog_form,blogs=all_blogs,search_form=search_form)
 
     else:
-        if form.validate_on_submit():
+        if blog_form.validate_on_submit():
             article_link= str(current_user.username)+'/'+str(int(time.time()))
-            article = Post(body = form.body.data,author_id = current_user.id,title=form.title.data,link=article_link)
+            article = Post(body = blog_form.body.data,author_id = current_user.id,title=blog_form.title.data,link=article_link)
             db.session.add(article)
             db.session.commit()
             article_id ='article:'+str(article.id)
             score = int(time.time()/10000000)+Articles.get_vote_score(conn,article_id)
-            Articles.add_to_redis(conn,article_id,score,form,article_link,article)
+            title = blog_form.title.data
+            Articles.add_to_redis(conn=conn,article_id=article_id,score=score,article_link=article_link,article=article,title=title)
             flash('You have update a blog!')
+        elif search_form.validate_on_submit():
+            key_word = search_form.data
+            return redirect(url_for('blog.search_keyword',keyword = key_word['search']))
         else:
-            flash(form.errors)
+            flash(blog_form.errors)
         return redirect(url_for('blog.show_blogs',page=1))
 
 
@@ -130,9 +135,23 @@ def show_my_blogs(page):
         return redirect(url_for('blog.show_blogs',page=1))
 
 
-@blog.route('/search/<keyword>')
+@blog.route('/search/<keyword>',methods=['GET','POST'])
 def search_keyword(keyword):
-    
+    '''用户搜索记录，如果已经有人搜索过，就缓存下来'''
+    search_form = Search_keywords()
+    if conn.sismember('search_keywords',keyword):
+        pass
+    else:
+        all_blogs = Post.query.all()
+        for blog in all_blogs:
+            if keyword in blog.body:
+                Articles.add_to_redis(conn,article_id=blog.id,article_link=blog.link,article=blog,keyword = keyword,
+                                      title=blog.title,search=True)
+        find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
+        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form)
+
+
+
     pass
 
 '''

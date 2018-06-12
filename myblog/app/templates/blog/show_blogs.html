@@ -38,6 +38,7 @@
 
     </tbody>
 </table>
+    {% if form %}
 
 <!-- Button trigger modal -->
             <div class="btn-group btn-group-taggle">
@@ -64,5 +65,9 @@
     </div> </div>
 </div>
             </div>
+    {% endif %}
+    <div class="glyphicon-search">
+    {{ wtf.quick_form(search_form,form_type="horizontal")}}
+    </div>
 
 {% endblock %}

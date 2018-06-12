@@ -31,3 +31,7 @@ class Show_blog(Form):
 class Ensure_Delete(Form):
     status = RadioField('ENSURE DELETE!', validators=[DataRequired()],  choices=[('1', 'YES')])
     submit = SubmitField('COMMIT')
+
+class Search_keywords(Form):
+    search = StringField('')
+    submit = SubmitField('Search')
