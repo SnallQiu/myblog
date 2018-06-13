@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
+
 {% block title %}
     page-content
 {% endblock %}
@@ -38,9 +39,16 @@
 
     </tbody>
 </table>
+    <div>
+    <style>
+.div-a{ float:left;width:19%;border:1px }
+.div-b{ float:left;width:69%;border:1px }
+</style>
     {% if form %}
 
 <!-- Button trigger modal -->
+
+        <div class="div-a">
             <div class="btn-group btn-group-taggle">
 
 <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal"> ADD </button>
@@ -65,9 +73,14 @@
     </div> </div>
 </div>
             </div>
+        </div>
     {% endif %}
-    <div class="glyphicon-search">
+    <div class="div-b">
     {{ wtf.quick_form(search_form,form_type="horizontal")}}
+    </div>
+
+
+
     </div>
 
 {% endblock %}

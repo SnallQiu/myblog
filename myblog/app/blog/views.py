@@ -149,7 +149,7 @@ def search_keyword(keyword):
     else:
         all_blogs = Post.query.all()
         for blog in all_blogs:
-            if keyword in blog.body:
+            if keyword in blog.body or keyword in blog.title:
                 Articles.add_to_redis(conn,article_id=blog.id,article_link=blog.link,article=blog,keyword = keyword,
                                       title=blog.title,search=True)
         find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
