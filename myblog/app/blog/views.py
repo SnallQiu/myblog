@@ -34,6 +34,7 @@ def show_blogs(page):
             score = int(time.time()/10000000)+Articles.get_vote_score(conn,article_id)
             title = blog_form.title.data
             Articles.add_to_redis(conn=conn,article_id=article_id,score=score,article_link=article_link,article=article,title=title)
+
             flash('You have update a blog!')
         elif search_form.validate_on_submit():
             key_word = search_form.data
@@ -114,11 +115,12 @@ def delete_blog(id):
 @login_required
 def show_my_blogs(page):
     form = Blog_items()
+    search_form = Search_keywords()
     if request.method == 'GET':
 
         all_blogs = Articles.get_articles(conn,page,username=current_user.username)
         #print(all_blogs)
-        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs)
+        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs,search_form=search_form)
 
     else:
         if form.validate_on_submit():
@@ -140,7 +142,10 @@ def search_keyword(keyword):
     '''用户搜索记录，如果已经有人搜索过，就缓存下来'''
     search_form = Search_keywords()
     if conn.sismember('search_keywords',keyword):
-        pass
+        find_articles = Articles.get_articles(conn=conn, page=1, keyword=keyword)
+        print(find_articles)
+        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form)
+
     else:
         all_blogs = Post.query.all()
         for blog in all_blogs:
@@ -148,11 +153,12 @@ def search_keyword(keyword):
                 Articles.add_to_redis(conn,article_id=blog.id,article_link=blog.link,article=blog,keyword = keyword,
                                       title=blog.title,search=True)
         find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
+
+        conn.sadd('search_keywords',keyword)
         return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form)
 
 
 
-    pass
 
 '''
 以后在解决图片分栏显示问题---------
