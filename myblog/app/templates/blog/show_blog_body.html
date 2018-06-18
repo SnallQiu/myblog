@@ -94,7 +94,34 @@
     </div>
 
 </div>
+<div>
+
+<style type="text/css">
+
+    body {
+        margin: 0;
+    }
+
+    #main{
+        height: 1000px;
+    }
+
+    #footer {
+        width: 50%;
+        height: 85px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+    }
+    .div-a{ float:left;width:0;border:1px;bottom: 0;height: 65px;position: fixed; }
+    .div-b{ float:left;width:40%;border:1px;bottom: 0;height: 85px;position: fixed; }
+
+</style>
 
 
+    <div class='col-xs-x6' id="footer">
+        {{ wtf.quick_form(comment_info,form_type='horizontal') }}
+    </div>
+</div>
 
 {% endblock %}

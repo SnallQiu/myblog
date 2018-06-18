@@ -35,3 +35,9 @@ class Ensure_Delete(Form):
 class Search_keywords(Form):
     search = StringField('')
     submit = SubmitField('Search')
+
+class Comment_submit(Form):
+    submit = SubmitField('comment')
+class Comment_info(Form):
+    comment_info = StringField('')
+    submit = SubmitField('comment')

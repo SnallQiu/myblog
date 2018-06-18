@@ -5,9 +5,9 @@ class Articles:
     @staticmethod
     def get_articles(conn,page,orders='score:',username='',keyword=''):
         orders = 'search_score:'+str(int(conn.zscore('search:',keyword))) if keyword else orders
-        print(orders)
+        #print(orders)
         pipeline = conn.pipeline()
-        print('+++',username)
+        #print('+++',username)
         start = (page-1)*ARTICLE_PER_PAGE
         end = start + ARTICLE_PER_PAGE -1
         articles = []
@@ -15,11 +15,11 @@ class Articles:
 
         '''use pipeline to reduce connection time'''
         ids = conn.zrevrange(orders,start,end)
-        print(ids)
+        #print(ids)
         for id in ids:
             pipeline.hgetall(id)
         articles_datas = pipeline.execute()
-        print(articles_datas)
+        #print(articles_datas)
         for i,article_data in enumerate(articles_datas):
             if not article_data:
                 continue
@@ -63,16 +63,16 @@ class Articles:
                 keyword=keyword.decode('utf-8')
                 if keyword!='count':
                     if keyword in title or keyword in article.body:
-                        print('-----------')
+                        #print('-----------')
                         conn.zadd('search_score:' + str(int(conn.zscore('search:', keyword))), article_id, score)
 
         else:
             conn.zincrby('search:','count',1)
             conn.zadd('search:',keyword,conn.zscore('search:','count'))
-            print(article_id)
+            #print(article_id)
             redis_key = 'article:'+str(article_id)
             score = conn.zscore('score:',redis_key)
-            print(score)
+            #print(score)
             conn.zadd('search_score:'+str(int(conn.zscore('search:',keyword))),redis_key,score)
 
 

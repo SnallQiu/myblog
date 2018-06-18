@@ -3,7 +3,7 @@
 from .articles import Articles
 #from app import db
 from . import blog
-from .forms import Blog_items,Ensure_Delete,Search_keywords
+from .forms import Blog_items,Ensure_Delete,Search_keywords,Comment_submit,Comment_info
 from flask import request,flash,url_for,redirect,render_template
 from flask_login import current_user,login_required
 import redis
@@ -50,16 +50,25 @@ def show_blog_info(link):
     if request.method == "GET":
         form_del = Ensure_Delete()
         form_edit = Blog_items()
+        comment_info = Comment_info()
         blog_info = Post.query.filter_by(link=link).first_or_404()
         form_edit.body.data = blog_info.body
         form_edit.title.data = blog_info.title
         can_edit = False
+        show_comment = Comment.query.filter(id=blog_info.id)#从数据库找
+        '''snall:nice blog！'''
         if blog_info.author_id == current_user.id or current_user.username == 'snall':
             can_edit = True
-        return render_template('blog/show_blog_body.html', blog=blog_info, can_edit=can_edit, form_del=form_del,
-                               form_edit=form_edit)
+        return render_template('blog/show_blog_body.html',
+                               blog=blog_info,
+                               can_edit=can_edit,
+                               form_del=form_del,
+                               comment_info = comment_info,
+                               form_edit=form_edit
+                               )
 
     else:
+        comment_info = Comment_info()
         form_edit = Blog_items()
         form_del = Ensure_Delete()
         blog_info = Post.query.filter_by(link=link).first_or_404()
@@ -75,6 +84,10 @@ def show_blog_info(link):
             conn.hset('article:'+str(blog_info.id),'title',blog_info.title)
             flash('Your have modifyed a blog!')
             return redirect(url_for('blog.show_blog_info', link=link))
+        if comment_info.validate_on_submit():
+            print('1')
+            '''放进数据库里'''
+
         
 
 
@@ -143,7 +156,7 @@ def search_keyword(keyword):
     search_form = Search_keywords()
     if conn.sismember('search_keywords',keyword):
         find_articles = Articles.get_articles(conn=conn, page=1, keyword=keyword)
-        print(find_articles)
+        #print(find_articles)
         return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form)
 
     else:
