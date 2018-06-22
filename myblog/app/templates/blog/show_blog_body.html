@@ -95,6 +95,11 @@
 
 </div>
 <div>
+<div>
+    {% for comment_info,comment_user in blog_comment.items() %}
+        <li>{{ comment_user.decode('utf-8') }}:{{ comment_info.decode('utf-8') }}</li>
+    {% endfor %}
+</div>
 
 <style type="text/css">
 
@@ -107,7 +112,7 @@
     }
 
     #footer {
-        width: 50%;
+        width: 100%;
         height: 85px;
         position: fixed;
         bottom: 0;

@@ -55,7 +55,8 @@ def show_blog_info(link):
         form_edit.body.data = blog_info.body
         form_edit.title.data = blog_info.title
         can_edit = False
-        show_comment = Comment.query.filter(id=blog_info.id)#从数据库找
+        #show_comment = Comment.query.filter(id=blog_info.id)#从数据库找
+        blog_comment = conn.hgetall('comment:'+str(blog_info.id))
         '''snall:nice blog！'''
         if blog_info.author_id == current_user.id or current_user.username == 'snall':
             can_edit = True
@@ -64,7 +65,8 @@ def show_blog_info(link):
                                can_edit=can_edit,
                                form_del=form_del,
                                comment_info = comment_info,
-                               form_edit=form_edit
+                               form_edit=form_edit,
+                               blog_comment=blog_comment,
                                )
 
     else:
@@ -85,7 +87,8 @@ def show_blog_info(link):
             flash('Your have modifyed a blog!')
             return redirect(url_for('blog.show_blog_info', link=link))
         if comment_info.validate_on_submit():
-            print('1')
+            conn.hmset('comment:'+str(blog_info.id),{comment_info.data['comment_info']:current_user.username})
+            return redirect(url_for('blog.show_blog_info', link=link))
             '''放进数据库里'''
 
         
