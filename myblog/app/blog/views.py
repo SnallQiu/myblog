@@ -1,6 +1,7 @@
 # -- coding: utf-8 --
 # author: snall  time: 2018/5/1
 from .articles import Articles
+from .comment import Comment
 #from app import db
 from . import blog
 from .forms import Blog_items,Ensure_Delete,Search_keywords,Comment_submit,Comment_info
@@ -11,7 +12,7 @@ from ..models import User,Post
 from .. import db
 import time
 from markdown import markdown
-conn= redis.Redis('127.0.0.1',6379)
+conn= redis.Redis('127.0.0.1',6379,decode_responses=True)
 pipeline = conn.pipeline()
 
 @login_required
@@ -86,12 +87,20 @@ def show_blog_info(link):
             conn.hset('article:'+str(blog_info.id),'title',blog_info.title)
             flash('Your have modifyed a blog!')
             return redirect(url_for('blog.show_blog_info', link=link))
+
         if comment_info.validate_on_submit():
-            conn.hmset('comment:'+str(blog_info.id),{comment_info.data['comment_info']:current_user.username})
+            Comment.add_comment(conn,str(blog_info.id),current_user,comment_info)
             return redirect(url_for('blog.show_blog_info', link=link))
             '''放进数据库里'''
 
         
+@blog.route('<path:link>/delete/blog<int:blog_id>/comment<user>_<int:comment_id>')
+@login_required
+def delete_comment(link,blog_id,comment_id,user):
+    comment_key_id = user+str(comment_id)
+    Comment.delete_comment(conn,blog_id,comment_key_id)
+
+    return redirect(url_for('blog.show_blog_info', link=link))
 
 
 

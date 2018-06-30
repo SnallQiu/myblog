@@ -26,13 +26,10 @@ class Articles:
             article_data['id'] = ids[i]
             article_data['score'] = conn.zscore(orders,ids[i])
             try:
-                article_data['publish_time'] = article_data['publish_time'.encode('utf-8')].decode('utf-8').split('.')[:-1][0]
+                article_data['publish_time'] = article_data['publish_time'].split('.')[:-1][0]
             except:
                 pass
-            try:
-                article_data['link'] = article_data['link'.encode('utf-8')].decode('utf-8')
-            except:
-                pass
+
             #print(article_data)
             try:
                 if article_data['link'].split('/')[0]==username:
@@ -60,7 +57,6 @@ class Articles:
             conn.hmset(article_id, article_info)
             '''if user publish a new blog,try to add artilce_id in keywords,'''
             for keyword in conn.zrange('search:',0,-1):
-                keyword=keyword.decode('utf-8')
                 if keyword!='count':
                     if keyword in title or keyword in article.body:
                         #print('-----------')
