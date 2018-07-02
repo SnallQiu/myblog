@@ -97,7 +97,7 @@ def show_blog_info(link):
 @blog.route('<path:link>/delete/blog<int:blog_id>/comment<user>_<int:comment_id>')
 @login_required
 def delete_comment(link,blog_id,comment_id,user):
-    comment_key_id = user+str(comment_id)
+    comment_key_id = user+'_'+str(comment_id)
     Comment.delete_comment(conn,blog_id,comment_key_id)
 
     return redirect(url_for('blog.show_blog_info', link=link))

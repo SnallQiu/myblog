@@ -6,8 +6,9 @@ class Comment:
     def add_comment(conn,blog_id,current_user,comment_info):
         comment_redis_key = 'comment:' + blog_id
         comment_redis_value_id = 'comment_id'
-        comment_id = int(conn.hmget(comment_redis_key, comment_redis_value_id)[0])
-        print(comment_id)
+        comment_id = conn.hmget(comment_redis_key, comment_redis_value_id)[0]
+        if comment_id:
+            comment_id = int(comment_id)
         if not comment_id:
             comment_id = 1
         else:
@@ -20,4 +21,5 @@ class Comment:
         conn.hmset(comment_redis_key, {comment_key: comment_value})
     @staticmethod
     def delete_comment(conn,blog_id,comment_id):
-        conn.hdel('comment:'+blog_id,comment_id)
+        print('+++++'+comment_id)
+        conn.hdel('comment:'+str(blog_id),comment_id)
