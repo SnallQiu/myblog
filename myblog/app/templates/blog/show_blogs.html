@@ -41,8 +41,8 @@
 </table>
     <div>
     <style>
-.div-a{ float:left;width:19%;border:1px }
-.div-b{ float:left;width:69%;border:1px }
+.div-a{ float:left;width:30%;border:1px }
+.div-b{ float:left;width:30%;border:1px }
 </style>
     {% if form %}
 
@@ -82,5 +82,16 @@
 
 
     </div>
+        <div class="change_page">
+        <div>
+            {% if page!=1 %}
+
+            <a href='{{ url_for('blog.next_or_last_page',down='last',page= page )}}'><--</a></div>
+            {% endif %}
+        <div><a href='{{ url_for('blog.next_or_last_page',down='next',page= page )}}'>--></a></div>
+
+
+    </div>
+
 
 {% endblock %}

@@ -15,7 +15,7 @@ from markdown import markdown
 conn= redis.Redis('127.0.0.1',6379,decode_responses=True)
 pipeline = conn.pipeline()
 
-@login_required
+'''展示博客首页'''
 @blog.route('/<int:page>',methods = ['GET','POST'])
 def show_blogs(page):
     blog_form = Blog_items()
@@ -23,7 +23,7 @@ def show_blogs(page):
     all_blogs = Articles.get_articles(conn, page)
     if request.method == 'GET':
         #print(all_blogs)
-        return render_template('blog/show_blogs.html',form=blog_form,blogs=all_blogs,search_form=search_form)
+        return render_template('blog/show_blogs.html',form=blog_form,blogs=all_blogs,search_form=search_form,page=page)
 
     else:
         if blog_form.validate_on_submit():
@@ -44,9 +44,19 @@ def show_blogs(page):
             flash(blog_form.errors)
         return redirect(url_for('blog.show_blogs',page=1))
 
+'''翻页'''
+@blog.route('/<down>_page/<int:page>')
+def next_or_last_page(down,page):
+    print(down,page)
+    if down == 'next':
+        page += 1
+    if down == 'last':
+        page -= 1
+    return redirect(url_for('blog.show_blogs',page=page))
 
+
+'''博客具体内容页面'''
 @blog.route('/info/<path:link>',methods=['GET','POST'])
-@login_required
 def show_blog_info(link):
     if request.method == "GET":
         form_del = Ensure_Delete()
@@ -91,9 +101,8 @@ def show_blog_info(link):
         if comment_info.validate_on_submit():
             Comment.add_comment(conn,str(blog_info.id),current_user,comment_info)
             return redirect(url_for('blog.show_blog_info', link=link))
-            '''放进数据库里'''
 
-        
+'''删评论'''
 @blog.route('<path:link>/delete/blog<int:blog_id>/comment<user>_<int:comment_id>')
 @login_required
 def delete_comment(link,blog_id,comment_id,user):
@@ -105,7 +114,7 @@ def delete_comment(link,blog_id,comment_id,user):
 
 
 
-
+'''点赞'''
 @blog.route('/info/<path:link>/count/<int:count>',methods=['GET','POST'])
 @login_required
 def votes(link,count):
@@ -124,7 +133,7 @@ def votes(link,count):
             flash('you have voted!')
         return redirect(url_for('blog.show_blog_info', link=link))
 
-
+'''删除博客'''
 @blog.route('/delete/<int:id>')
 @login_required
 def delete_blog(id):
@@ -135,7 +144,7 @@ def delete_blog(id):
     flash('You have delete a blog')
     return redirect(url_for('blog.show_blogs',page=1))
 
-
+'''展示我的博客'''
 @blog.route('/show_myblog/<int:page>',methods=['GET','POST'])
 @login_required
 def show_my_blogs(page):
@@ -161,7 +170,7 @@ def show_my_blogs(page):
             flash(form.errors)
         return redirect(url_for('blog.show_blogs',page=1))
 
-
+'''搜索功能'''
 @blog.route('/search/<keyword>',methods=['GET','POST'])
 def search_keyword(keyword):
     '''用户搜索记录，如果已经有人搜索过，就缓存下来'''
