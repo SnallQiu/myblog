@@ -13,13 +13,13 @@ class TodoList(db.Model):
     user_id = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(1024), nullable=False)
     status = db.Column(db.Integer, nullable=False)
-    create_time = db.Column(db.DateTime, default=time.strftime('%Y-%m-%d %H:%M:%S'))
+    create_time = db.Column(db.DateTime, default=time.strftime('%Y-%m-%d %H:%M'))
 
     def __init__(self, user_id, title, status):
         self.user_id = user_id
         self.title = title
         self.status = status
-        #self.create_time = datetime.fromtimestamp(time.time())
+        self.create_time = datetime.fromtimestamp(int(time.time()))
 from markdown import markdown
 import bleach
 class Post(db.Model):
@@ -30,7 +30,7 @@ class Post(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     vote = db.Column(db.Integer,default=0)
-    timestamp = db.Column(db.DateTime,index=True,default=datetime.fromtimestamp((time.time())))
+    timestamp = db.Column(db.DateTime,index=True,default=datetime.fromtimestamp(int((time.time()))))
     author_id = db.Column(db.Integer,db.ForeignKey('user.id'))
     '''markdown
     https://blog.csdn.net/hyman_c/article/details/54426242

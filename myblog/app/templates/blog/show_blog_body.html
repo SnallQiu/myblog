@@ -103,7 +103,7 @@
         {% if comment_user != 'comment_id' %}
         <li>{{ comment_user.split('_')[0] }}:{{ comment_info }}</li>
             <div>
-            {% if comment_user.username==snall %}
+            {% if current_user.username in ['snall','qqczzh'] %}
                 <a href="{{ url_for('blog.delete_comment',link=blog.link,blog_id=blog.id,comment_id=comment_user.split('_')[1],
                         user = comment_user.split('_')[0]) }}">delete</a>
                 {% endif %}

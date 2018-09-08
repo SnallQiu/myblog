@@ -1,10 +1,11 @@
 # -- coding: utf-8 --
 # author: snall  time: 2018/5/1
-ARTICLE_PER_PAGE  = 20
+ARTICLE_PER_PAGE  = 2
 class Articles:
     @staticmethod
     def get_articles(conn,page,orders='score:',username='',keyword=''):
-        orders = 'search_score:'+str(int(conn.zscore('search:',keyword))) if keyword else orders
+        if keyword and keyword!='0':
+            orders = 'search_score:'+str(int(conn.zscore('search:',keyword)))
         #print(orders)
         pipeline = conn.pipeline()
         #print('+++',username)
@@ -30,7 +31,6 @@ class Articles:
             except:
                 pass
 
-            #print(article_data)
             try:
                 if article_data['link'].split('/')[0]==username:
                     my_articles.append(article_data)
@@ -59,16 +59,17 @@ class Articles:
             for keyword in conn.zrange('search:',0,-1):
                 if keyword!='count':
                     if keyword in title or keyword in article.body:
-                        #print('-----------')
                         conn.zadd('search_score:' + str(int(conn.zscore('search:', keyword))), article_id, score)
 
         else:
-            conn.zincrby('search:','count',1)
+            conn.zincrby('search:','count',1)         #创建关键词序号，每次有用户搜索都加1.
             conn.zadd('search:',keyword,conn.zscore('search:','count'))
-            #print(article_id)
+            print(article_id)
             redis_key = 'article:'+str(article_id)
             score = conn.zscore('score:',redis_key)
-            #print(score)
+            if not score:
+                #修正一下部分博客没分数导致错误的bug
+                return
             conn.zadd('search_score:'+str(int(conn.zscore('search:',keyword))),redis_key,score)
 
 

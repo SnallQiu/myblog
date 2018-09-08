@@ -16,14 +16,15 @@ conn= redis.Redis('127.0.0.1',6379,decode_responses=True)
 pipeline = conn.pipeline()
 
 '''展示博客首页'''
-@blog.route('/<int:page>',methods = ['GET','POST'])
-def show_blogs(page):
+@blog.route('/<int:page>/<search_key>',methods = ['GET','POST'])
+def show_blogs(page=1,search_key=''):
     blog_form = Blog_items()
+    print('++'+search_key)
+    print('11')
     search_form = Search_keywords()
-    all_blogs = Articles.get_articles(conn, page)
+    all_blogs = Articles.get_articles(conn, page,keyword=search_key)
     if request.method == 'GET':
-        #print(all_blogs)
-        return render_template('blog/show_blogs.html',form=blog_form,blogs=all_blogs,search_form=search_form,page=page)
+        return render_template('blog/show_blogs.html',form=blog_form,blogs=all_blogs,search_form=search_form,page=page,keyword=search_key)
 
     else:
         if blog_form.validate_on_submit():
@@ -42,17 +43,17 @@ def show_blogs(page):
             return redirect(url_for('blog.search_keyword',keyword = key_word['search']))
         else:
             flash(blog_form.errors)
-        return redirect(url_for('blog.show_blogs',page=1))
+        return redirect(url_for('blog.show_blogs',page=1,search_key=search_key))
 
 '''翻页'''
-@blog.route('/<down>_page/<int:page>')
-def next_or_last_page(down,page):
-    print(down,page)
+@blog.route('/<down>_page_<search_key>/<int:page>')
+def next_or_last_page(down,page,search_key=''):
+    print(down,page,search_key)
     if down == 'next':
         page += 1
     if down == 'last':
         page -= 1
-    return redirect(url_for('blog.show_blogs',page=page))
+    return redirect(url_for('blog.show_blogs',page=page,search_key=search_key))
 
 
 '''博客具体内容页面'''
@@ -69,8 +70,9 @@ def show_blog_info(link):
         #show_comment = Comment.query.filter(id=blog_info.id)#从数据库找
         blog_comment = conn.hgetall('comment:'+str(blog_info.id))
         '''snall:nice blog！'''
-        if blog_info.author_id == current_user.id or current_user.username == 'snall':
-            can_edit = True
+        if current_user.is_authenticated:
+            if blog_info.author_id == current_user.id or current_user.username == 'snall':
+                can_edit = True
         return render_template('blog/show_blog_body.html',
                                blog=blog_info,
                                can_edit=can_edit,
@@ -78,6 +80,7 @@ def show_blog_info(link):
                                comment_info = comment_info,
                                form_edit=form_edit,
                                blog_comment=blog_comment,
+                               current_user = current_user,
                                )
 
     else:
@@ -154,7 +157,7 @@ def show_my_blogs(page):
 
         all_blogs = Articles.get_articles(conn,page,username=current_user.username)
         #print(all_blogs)
-        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs,search_form=search_form)
+        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs,search_form=search_form,page=1)
 
     else:
         if form.validate_on_submit():
@@ -175,10 +178,11 @@ def show_my_blogs(page):
 def search_keyword(keyword):
     '''用户搜索记录，如果已经有人搜索过，就缓存下来'''
     search_form = Search_keywords()
+    '''记录下来每个关键词被搜索的次数'''
+    conn.zincrby('search_rank',keyword)
     if conn.sismember('search_keywords',keyword):
         find_articles = Articles.get_articles(conn=conn, page=1, keyword=keyword)
-        #print(find_articles)
-        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form)
+        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
 
     else:
         all_blogs = Post.query.all()
@@ -189,7 +193,7 @@ def search_keyword(keyword):
         find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
 
         conn.sadd('search_keywords',keyword)
-        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form)
+        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
 
 
 

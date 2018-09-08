@@ -30,3 +30,10 @@ insert into user values(1, 'admin', 'admin');
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 insert into posts values(1, '这是一篇测试博客，里面啥也没写', '2018-05-05 21:49:00',6,'TEST','www.baidu.com');
+
+CREATE TABLE `roles` (
+    `id` int(11) NOT NULL ,
+    `name` varchar(24) unique =TRUE ,
+    `default` boolean,
+    `permissions` int(10)
+)
