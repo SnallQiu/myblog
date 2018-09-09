@@ -5,39 +5,43 @@ class Articles:
     @staticmethod
     def get_articles(conn,page,orders='score:',username='',keyword=''):
         if keyword and keyword!='0':
-            orders = 'search_score:'+str(int(conn.zscore('search:',keyword)))
-        #print(orders)
-        pipeline = conn.pipeline()
-        #print('+++',username)
+            search_id = conn.zscore('search:',keyword)
+            if not search_id:
+                return []
+            orders = 'search_score:'+str(int(search_id))
         start = (page-1)*ARTICLE_PER_PAGE
         end = start + ARTICLE_PER_PAGE -1
         articles = []
         my_articles = []
+        def get_articles_id(orders,start,end):
 
-        '''use pipeline to reduce connection time'''
-        ids = conn.zrevrange(orders,start,end)
-        #print(ids)
-        for id in ids:
-            pipeline.hgetall(id)
-        articles_datas = pipeline.execute()
-        #print(articles_datas)
-        for i,article_data in enumerate(articles_datas):
-            if not article_data:
-                continue
-            article_data['id'] = ids[i]
-            article_data['score'] = conn.zscore(orders,ids[i])
-            try:
-                article_data['publish_time'] = article_data['publish_time'].split('.')[:-1][0]
-            except:
-                pass
+            '''use pipeline to reduce connection time'''
+            ids = conn.zrevrange(orders,start,end)
+            pipeline = conn.pipeline()
+            for id in ids:
+                pipeline.hgetall(id)
+            articles_datas = pipeline.execute()
+            for i,article_data in enumerate(articles_datas):
+                if not article_data:
+                    #去掉有人删掉博客后搜索缓存中的东西
+                    if conn.zrem(orders,ids[i]):
+                        return get_articles_id(orders,start,end)
+                    continue
+                article_data['id'] = ids[i]
+                article_data['score'] = conn.zscore(orders,ids[i])
+                try:
+                    article_data['publish_time'] = article_data['publish_time'].split('.')[:-1][0]
+                except:
+                    pass
 
-            try:
-                if article_data['link'].split('/')[0]==username:
-                    my_articles.append(article_data)
-            except:
-                pass
-            articles.append(article_data)
-        return my_articles if username else articles
+                try:
+                    if article_data['link'].split('/')[0]==username:
+                        my_articles.append(article_data)
+                except:
+                    pass
+                articles.append(article_data)
+            return my_articles if username else articles
+        return get_articles_id(orders,start,end)
 
     @staticmethod
     def get_vote_score(conn,id):

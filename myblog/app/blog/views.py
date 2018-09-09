@@ -19,8 +19,7 @@ pipeline = conn.pipeline()
 @blog.route('/<int:page>/<search_key>',methods = ['GET','POST'])
 def show_blogs(page=1,search_key=''):
     blog_form = Blog_items()
-    print('++'+search_key)
-    print('11')
+    print(request.method)
     search_form = Search_keywords()
     all_blogs = Articles.get_articles(conn, page,keyword=search_key)
     if request.method == 'GET':
@@ -145,7 +144,7 @@ def delete_blog(id):
     db.session.commit()
     Articles.delete_blog(conn,id)
     flash('You have delete a blog')
-    return redirect(url_for('blog.show_blogs',page=1))
+    return redirect(url_for('blog.show_blogs',page=1,search_key='0'))
 
 '''展示我的博客'''
 @blog.route('/show_myblog/<int:page>',methods=['GET','POST'])
@@ -169,9 +168,11 @@ def show_my_blogs(page):
             score = int(time.time())+Articles.get_vote_score(conn,article_id)
             Articles.add_to_redis(conn,article_id,score,form,article_link,article)
             flash('You have update a blog!')
+        elif search_form.validate_on_submit():
+            return redirect(url_for('blog.search_keyword',keyword=search_form.search.data))
         else:
             flash(form.errors)
-        return redirect(url_for('blog.show_blogs',page=1))
+        return redirect(url_for('blog.show_blogs',page=1,search_key='0'))
 
 '''搜索功能'''
 @blog.route('/search/<keyword>',methods=['GET','POST'])
@@ -180,20 +181,29 @@ def search_keyword(keyword):
     search_form = Search_keywords()
     '''记录下来每个关键词被搜索的次数'''
     conn.zincrby('search_rank',keyword)
-    if conn.sismember('search_keywords',keyword):
-        find_articles = Articles.get_articles(conn=conn, page=1, keyword=keyword)
-        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
+    print('test')
+    if request.method == "GET":
+        if conn.sismember('search_keywords',keyword):
+            find_articles = Articles.get_articles(conn=conn, page=1, keyword=keyword)
+            return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
 
+        else:
+            '''这里可以用like查找，现在写的要改'''
+            all_blogs = Post.query.all()
+            for blog in all_blogs:
+                if keyword in blog.body or keyword in blog.title:
+                    print(1)
+                    Articles.add_to_redis(conn,article_id=blog.id,article_link=blog.link,article=blog,keyword = keyword,
+                                          title=blog.title,search=True)
+            find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
+
+            conn.sadd('search_keywords',keyword)
+            return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
     else:
-        all_blogs = Post.query.all()
-        for blog in all_blogs:
-            if keyword in blog.body or keyword in blog.title:
-                Articles.add_to_redis(conn,article_id=blog.id,article_link=blog.link,article=blog,keyword = keyword,
-                                      title=blog.title,search=True)
-        find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
-
-        conn.sadd('search_keywords',keyword)
-        return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
+        '''在搜索结果点搜索功能'''
+        print('1111')
+        if search_form.validate_on_submit():
+            return redirect(url_for('blog.search_keyword', keyword=search_form.search.data))
 
 
 
