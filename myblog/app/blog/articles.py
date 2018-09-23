@@ -1,6 +1,6 @@
 # -- coding: utf-8 --
 # author: snall  time: 2018/5/1
-ARTICLE_PER_PAGE  = 2
+ARTICLE_PER_PAGE  = 10
 class Articles:
     @staticmethod
     def get_articles(conn,page,orders='score:',username='',keyword=''):

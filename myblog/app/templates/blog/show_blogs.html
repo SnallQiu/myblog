@@ -11,11 +11,24 @@
     {{ super() }}
 {#    markdown#}
     {{ pagedown.include_pagedown() }}
+    {# <scriptsrc="{{url_for('blog', filename='change_page.js')}}"></script> #}
+<script type="text/javascript">
+
+$(function (url) {
+    $('button#change_apage').bind(
+        'click',
+        function () {
+            document.getElementById("demo").innerHTML = Date();
+        });
+});
+
+</script>
+
 {% endblock %}
 
-{% block page_content %}
 
-<table class="table table-hover">
+{% block page_content %}
+<table class="table table-hover" >
     <thead>
         <th class="active">No</th>
         <th class="active">Title</th>
@@ -82,16 +95,20 @@
 
 
     </div>
-        <div class="change_page">
-        <div>
+
+        <div id="change_apage">
+            <div>
             {% if page!=1 %}
 
-            <a href='{{ url_for('blog.next_or_last_page',down='last',page= page,search_key = keyword )}}'><--</a></div>
+            <a href='{{ url_for('blog.next_or_last_page',down='last',page= page,search_key = keyword )}}'><--</a>
+                </div>
             {% endif %}
-        <div><a href='{{ url_for('blog.next_or_last_page',down='next',page= page ,search_key = keyword)}}'>--></a></div>
+        <div>
+            <a href='{{ url_for('blog.next_or_last_page',down='next',page= page ,search_key = keyword)}}'>--></a>
+        </div>
 
-
-    </div>
-
-
+        </div>
+    <button id="change_apage" >now
+    </button>
+    <p id="demo">l</p>
 {% endblock %}

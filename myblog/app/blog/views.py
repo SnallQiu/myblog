@@ -156,7 +156,7 @@ def show_my_blogs(page):
 
         all_blogs = Articles.get_articles(conn,page,username=current_user.username)
         #print(all_blogs)
-        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs,search_form=search_form,page=1)
+        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs,search_form=search_form,page=1,search_keyword='0')
 
     else:
         if form.validate_on_submit():
@@ -201,7 +201,6 @@ def search_keyword(keyword):
             return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
     else:
         '''在搜索结果点搜索功能'''
-        print('1111')
         if search_form.validate_on_submit():
             return redirect(url_for('blog.search_keyword', keyword=search_form.search.data))
 
