@@ -11,6 +11,7 @@ import redis
 from ..models import User,Post
 from .. import db
 import time
+from functools import wraps
 from markdown import markdown
 conn= redis.Redis('127.0.0.1',6379,decode_responses=True)
 pipeline = conn.pipeline()
@@ -43,22 +44,30 @@ def show_blogs(page=1):
             flash(blog_form.errors)
         return redirect(url_for('blog.show_blogs',page=1))
 
+def change_page(func):
+    @wraps(func)
+    def wrapper_(*args,**kwargs):
+        down = kwargs['down']
+        page = kwargs['page']
+        if down == 'next':
+            page += 1
+        if down == 'last':
+            page -= 1
+        kwargs['page'] = page
+        return func(*args,**kwargs)
+    return wrapper_
+
+
 '''翻页'''
 @blog.route('/<down>_page/<int:page>')
+@change_page
 def next_or_last_page(down,page):
-    if down == 'next':
-        page += 1
-    if down == 'last':
-        page -= 1
     return redirect(url_for('blog.show_blogs',page=page))
 
 '''翻页'''
 @blog.route('search/<keyword>/<down>_page/<int:page>')
+@change_page
 def search_next_or_last_page(down,page,keyword):
-    if down == 'next':
-        page += 1
-    if down == 'last':
-        page -= 1
     return redirect(url_for('blog.search_keyword',page=page,keyword=keyword))
 
 
