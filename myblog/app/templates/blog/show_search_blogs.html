@@ -1,2 +1,28 @@
 {% extends "blog/show_blogs.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+
+{% block search %}
+    <div>
+        {{ search_form.search.data }}
+        {{ wtf.quick_form(search_form)}}
+    </div>
+
+
+
+
+        <div id="change_apage">
+            <div>
+            {% if page!=1 %}
+
+            <a href='{{ url_for('blog.search_next_or_last_page',down='last',page= page,keyword=keyword)}}'><--</a>
+                </div>
+            {% endif %}
+        <div>
+            <a href='{{ url_for('blog.search_next_or_last_page',down='next',page= page,keyword=keyword)}}'>--></a>
+        </div>
+
+        </div>
+    <button id="change_apage" >now
+    </button>
+    <p id="demo"></p>
+{% endblock %}

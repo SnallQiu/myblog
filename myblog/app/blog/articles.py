@@ -4,7 +4,7 @@ ARTICLE_PER_PAGE  = 10
 class Articles:
     @staticmethod
     def get_articles(conn,page,orders='score:',username='',keyword=''):
-        if keyword and keyword!='0':
+        if keyword:
             search_id = conn.zscore('search:',keyword)
             if not search_id:
                 return []

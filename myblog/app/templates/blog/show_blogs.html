@@ -54,62 +54,65 @@ $(function (url) {
 </table>
     <div>
     <style>
-.div-a{ float:left;width:30%;border:1px }
-.div-b{ float:left;width:30%;border:1px }
-</style>
+        .div-a{ float:left;width:30%;border:1px }
+        .div-b{ float:left;width:30%;border:1px }
+    </style>
     {% if form %}
 
-<!-- Button trigger modal -->
-
+    <!-- Button trigger modal -->
         <div class="div-a">
             <div class="btn-group btn-group-taggle">
 
-<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal"> ADD </button>
+                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal"> ADD </button>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog"> <div class="modal-content">
+                <!-- Modal -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog"> <div class="modal-content">
 
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myModalLabel" align="center">add new blog</h4>
-      </div>
+                        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLabel" align="center">add new blog</h4>
+                        </div>
 
-      <div class="modal-body">
-          <div class="row">
-              <div class='input-lg' style="height: 800px; background-color: white; margin: 0 auto">
+                    <div class="modal-body">
+                <div class="row">
+                <div class='input-lg' style="height: 800px; background-color: white; margin: 0 auto">
                   {{ wtf.quick_form(form, form_type="horizontal") }}
-              </div>
-          </div>
-      </div> <!-- modal body -->
+                </div>
+                </div>
+        </div> <!-- modal body -->
 
-    </div> </div>
-</div>
+    </div>          </div>
+                </div>
             </div>
         </div>
+        </div>
+
     {% endif %}
+{% endblock %}
+
+
+{% block search %}
     <div>
-        {{ search_form.search.data }}
-    {{ wtf.quick_form(search_form)}}
+        {{ wtf.quick_form(search_form)}}
     </div>
 
 
 
-    </div>
 
         <div id="change_apage">
             <div>
             {% if page!=1 %}
 
-            <a href='{{ url_for('blog.next_or_last_page',down='last',page= page,search_key = keyword )}}'><--</a>
+            <a href='{{ url_for('blog.next_or_last_page',down='last',page= page)}}'><--</a>
                 </div>
             {% endif %}
         <div>
-            <a href='{{ url_for('blog.next_or_last_page',down='next',page= page ,search_key = keyword)}}'>--></a>
+            <a href='{{ url_for('blog.next_or_last_page',down='next',page= page)}}'>--></a>
         </div>
 
         </div>
     <button id="change_apage" >now
     </button>
-    <p id="demo">{{ request.url }}</p>
+    <p id="demo"></p>
 {% endblock %}

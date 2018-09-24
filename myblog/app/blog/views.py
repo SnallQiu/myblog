@@ -17,13 +17,12 @@ pipeline = conn.pipeline()
 
 '''展示博客首页'''
 @blog.route('/<int:page>',methods = ['GET','POST'])
-def show_blogs(page=1,search_key=''):
+def show_blogs(page=1):
     blog_form = Blog_items()
-    print(request.method)
     search_form = Search_keywords()
-    all_blogs = Articles.get_articles(conn, page,keyword=search_key)
+    all_blogs = Articles.get_articles(conn, page)
     if request.method == 'GET':
-        return render_template('blog/show_blogs.html',form=blog_form,blogs=all_blogs,search_form=search_form,page=page,keyword=search_key)
+        return render_template('blog/show_blogs.html',form=blog_form,blogs=all_blogs,search_form=search_form,page=page)
 
     else:
         if blog_form.validate_on_submit():
@@ -39,25 +38,28 @@ def show_blogs(page=1,search_key=''):
             flash('You have update a blog!')
         elif search_form.validate_on_submit():
             key_word = search_form.data
-            return redirect(url_for('blog.search_keyword',keyword = key_word['search']))
+            return redirect(url_for('blog.search_keyword',keyword = key_word['search'],page=1))
         else:
             flash(blog_form.errors)
-        return redirect(url_for('blog.show_blogs',page=1,search_key=search_key))
+        return redirect(url_for('blog.show_blogs',page=1))
 
 '''翻页'''
-@blog.route('/<down>_page_<search_key>/<int:page>')
-def next_or_last_page(down,page,search_key=''):
-    url = request.url
-    print(url)
+@blog.route('/<down>_page/<int:page>')
+def next_or_last_page(down,page):
     if down == 'next':
         page += 1
     if down == 'last':
         page -= 1
-    if 'show_myblog' in url:
-        print('111')
-        return redirect(url_for('blog.show_myblogs',page=page,))
+    return redirect(url_for('blog.show_blogs',page=page))
 
-    return redirect(url_for('blog.show_blogs',page=page,search_key=search_key))
+'''翻页'''
+@blog.route('search/<keyword>/<down>_page/<int:page>')
+def search_next_or_last_page(down,page,keyword):
+    if down == 'next':
+        page += 1
+    if down == 'last':
+        page -= 1
+    return redirect(url_for('blog.search_keyword',page=page,keyword=keyword))
 
 
 '''博客具体内容页面'''
@@ -180,8 +182,8 @@ def show_my_blogs(page=1):
         return redirect(url_for('blog.show_blogs',page=1))
 
 '''搜索功能'''
-@blog.route('/search/<keyword>',methods=['GET','POST'])
-def search_keyword(keyword):
+@blog.route('/search/<keyword>/<int:page>',methods=['GET','POST'])
+def search_keyword(keyword,page=1):
     '''用户搜索记录，如果已经有人搜索过，就缓存下来'''
     search_form = Search_keywords()
     '''记录下来每个关键词被搜索的次数'''
@@ -189,7 +191,7 @@ def search_keyword(keyword):
     print('test')
     if request.method == "GET":
         if conn.sismember('search_keywords',keyword):
-            find_articles = Articles.get_articles(conn=conn, page=1, keyword=keyword)
+            find_articles = Articles.get_articles(conn=conn, page=page, keyword=keyword)
 
         else:
             '''这里可以用like查找，现在写的要改'''
@@ -198,10 +200,10 @@ def search_keyword(keyword):
                 if keyword in blog.body or keyword in blog.title:
                     Articles.add_to_redis(conn,article_id=blog.id,article_link=blog.link,article=blog,keyword = keyword,
                                           title=blog.title,search=True)
-            find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
+            find_articles = Articles.get_articles(conn=conn,page=page,keyword=keyword)
 
             conn.sadd('search_keywords',keyword)
-        return render_template('blog/show_search_blogs.html', blogs=find_articles, search_form=search_form, page=1,
+        return render_template('blog/show_search_blogs.html', blogs=find_articles, search_form=search_form, page=page,
                                keyword=keyword)
     else:
         '''在搜索结果点搜索功能'''
