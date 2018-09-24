@@ -89,6 +89,7 @@ $(function (url) {
         </div>
     {% endif %}
     <div>
+        {{ search_form.search.data }}
     {{ wtf.quick_form(search_form)}}
     </div>
 
@@ -110,5 +111,5 @@ $(function (url) {
         </div>
     <button id="change_apage" >now
     </button>
-    <p id="demo">l</p>
+    <p id="demo">{{ request.url }}</p>
 {% endblock %}

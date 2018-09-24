@@ -16,7 +16,7 @@ conn= redis.Redis('127.0.0.1',6379,decode_responses=True)
 pipeline = conn.pipeline()
 
 '''展示博客首页'''
-@blog.route('/<int:page>/<search_key>',methods = ['GET','POST'])
+@blog.route('/<int:page>',methods = ['GET','POST'])
 def show_blogs(page=1,search_key=''):
     blog_form = Blog_items()
     print(request.method)
@@ -47,11 +47,16 @@ def show_blogs(page=1,search_key=''):
 '''翻页'''
 @blog.route('/<down>_page_<search_key>/<int:page>')
 def next_or_last_page(down,page,search_key=''):
-    print(down,page,search_key)
+    url = request.url
+    print(url)
     if down == 'next':
         page += 1
     if down == 'last':
         page -= 1
+    if 'show_myblog' in url:
+        print('111')
+        return redirect(url_for('blog.show_myblogs',page=page,))
+
     return redirect(url_for('blog.show_blogs',page=page,search_key=search_key))
 
 
@@ -149,14 +154,14 @@ def delete_blog(id):
 '''展示我的博客'''
 @blog.route('/show_myblog/<int:page>',methods=['GET','POST'])
 @login_required
-def show_my_blogs(page):
+def show_my_blogs(page=1):
     form = Blog_items()
     search_form = Search_keywords()
     if request.method == 'GET':
 
         all_blogs = Articles.get_articles(conn,page,username=current_user.username)
         #print(all_blogs)
-        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs,search_form=search_form,page=1,search_keyword='0')
+        return render_template('blog/show_blogs.html',form=form,blogs=all_blogs,search_form=search_form,page=page)
 
     else:
         if form.validate_on_submit():
@@ -172,7 +177,7 @@ def show_my_blogs(page):
             return redirect(url_for('blog.search_keyword',keyword=search_form.search.data))
         else:
             flash(form.errors)
-        return redirect(url_for('blog.show_blogs',page=1,search_key='0'))
+        return redirect(url_for('blog.show_blogs',page=1))
 
 '''搜索功能'''
 @blog.route('/search/<keyword>',methods=['GET','POST'])
@@ -185,20 +190,19 @@ def search_keyword(keyword):
     if request.method == "GET":
         if conn.sismember('search_keywords',keyword):
             find_articles = Articles.get_articles(conn=conn, page=1, keyword=keyword)
-            return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
 
         else:
             '''这里可以用like查找，现在写的要改'''
             all_blogs = Post.query.all()
             for blog in all_blogs:
                 if keyword in blog.body or keyword in blog.title:
-                    print(1)
                     Articles.add_to_redis(conn,article_id=blog.id,article_link=blog.link,article=blog,keyword = keyword,
                                           title=blog.title,search=True)
             find_articles = Articles.get_articles(conn=conn,page=1,keyword=keyword)
 
             conn.sadd('search_keywords',keyword)
-            return render_template('blog/show_blogs.html',blogs=find_articles,search_form=search_form,page=1,keyword=keyword)
+        return render_template('blog/show_search_blogs.html', blogs=find_articles, search_form=search_form, page=1,
+                               keyword=keyword)
     else:
         '''在搜索结果点搜索功能'''
         if search_form.validate_on_submit():
